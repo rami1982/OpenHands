@@ -10,7 +10,7 @@ from openhands.core.logger import openhands_logger as logger
 from openhands.events.action import MessageAction
 from openhands.llm.llm_registry import LLMRegistry
 from openhands.server.session.agent_session import AgentSession
-from openhands.storage.files import FileStore
+from openhands.storage.local import LocalFileStore
 from openhands.server.services.conversation_stats import ConversationStats
 
 from autonomous_agent.cost_manager import (
@@ -80,7 +80,7 @@ async def main():
 
             # b. Initialize session components
             session_id = f"session-{task.id[:12]}"
-            file_store = FileStore(session_id)
+            file_store = LocalFileStore(session_id)
             conversation_stats = ConversationStats(session_id)
             
             # c. Create and start AgentSession
