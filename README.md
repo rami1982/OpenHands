@@ -107,6 +107,13 @@ The system consists of:
    - Git branch naming
    - Rate limit retry behavior
 
+### Flow Documentation
+
+For a detailed understanding of how the orchestrator works:
+
+- **[ORCHESTRATOR_FLOW.md](ORCHESTRATOR_FLOW.md)** - Complete flow diagrams from startup to task completion
+- **[TASK_LIFECYCLE.md](TASK_LIFECYCLE.md)** - Task state management and persistence behavior
+
 ## Notes and Limitations
 
 - The orchestrator requires OpenHands to be properly installed and configured
