@@ -1,0 +1,34 @@
+# Configuration for the Autonomous Coding Agent Orchestrator
+
+[task_source]
+type = "markdown"
+path = "tasks/" # Path to a directory of markdown files
+
+[git]
+branch_prefix = "agent/task-"
+
+[cost_management]
+# The budget period, e.g., "monthly", "daily", "hourly"
+budget_period = "monthly" 
+
+# The total token budget for the period.
+# Set to 0 for no limit.
+token_budget = 1000000 
+
+# Cost per 1000 tokens (example for GPT-4)
+cost_per_1000_tokens = 0.03
+
+# Path to the state file for persisting usage data
+state_file = "autonomous_agent_state.json"
+
+[rate_limits]
+# Cooldown period in seconds when a persistent rate limit is hit
+cooldown_period_on_extended_rate_limit = 3600 # 1 hour
+
+# Tenacity retry settings for transient rate limits
+# Wait 2^x * multiplier seconds between each retry, up to 'max_wait' seconds
+retry_multiplier = 1
+retry_min_wait = 4
+retry_max_wait = 60
+# Max number of retries before giving up and raising ExtendedRateLimitError
+max_retries = 5

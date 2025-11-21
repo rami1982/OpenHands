@@ -1,89 +1,39 @@
-<a name="readme-top"></a>
+# Autonomous Agent Orchestrator for OpenHands
 
-<div align="center">
-  <img src="https://raw.githubusercontent.com/All-Hands-AI/docs/main/openhands/static/img/logo.png" alt="Logo" width="200">
-  <h1 align="center" style="border-bottom: none">OpenHands: AI-Driven Development</h1>
-</div>
+This project introduces an autonomous orchestrator layer designed to run on top of the OpenHands AI coding agent. It enables OpenHands to work through a large backlog of development tasks automatically, without requiring user input for each task.
 
+The system is designed to be mindful of budgets, with a cost management component that tracks API token usage against a defined monthly or daily limit. If the limit is reached, the agent will automatically pause and resume its work once the API quota has been reset.
 
-<div align="center">
-  <a href="https://github.com/OpenHands/OpenHands/blob/main/LICENSE"><img src="https://img.shields.io/badge/LICENSE-MIT-20B2AA?style=for-the-badge" alt="MIT License"></a>
-  <a href="https://docs.google.com/spreadsheets/d/1wOUdFCMyY6Nt0AIqF705KN4JKOWgeI4wUGUP60krXXs/edit?gid=811504672#gid=811504672"><img src="https://img.shields.io/badge/SWEBench-72.8-00cc00?logoColor=FFE165&style=for-the-badge" alt="Benchmark Score"></a>
-  <br/>
-  <a href="https://docs.openhands.dev/sdk"><img src="https://img.shields.io/badge/Documentation-000?logo=googledocs&logoColor=FFE165&style=for-the-badge" alt="Check out the documentation"></a>
-  <a href="https://arxiv.org/abs/2511.03690"><img src="https://img.shields.io/badge/Paper-000?logoColor=FFE165&logo=arxiv&style=for-the-badge" alt="Tech Report"></a>
+## How It Works
 
+The orchestrator runs as a background service (`daemon`) that manages the entire lifecycle of task execution.
 
-  <!-- Keep these links. Translations will automatically update with the README. -->
-  <a href="https://www.readme-i18n.com/OpenHands/OpenHands?lang=de">Deutsch</a> |
-  <a href="https://www.readme-i18n.com/OpenHands/OpenHands?lang=es">Español</a> |
-  <a href="https://www.readme-i18n.com/OpenHands/OpenHands?lang=fr">français</a> |
-  <a href="https://www.readme-i18n.com/OpenHands/OpenHands?lang=ja">日本語</a> |
-  <a href="https://www.readme-i18n.com/OpenHands/OpenHands?lang=ko">한국어</a> |
-  <a href="https://www.readme-i18n.com/OpenHands/OpenHands?lang=pt">Português</a> |
-  <a href="https://www.readme-i18n.com/OpenHands/OpenHands?lang=ru">Русский</a> |
-  <a href="https://www.readme-i18n.com/OpenHands/OpenHands?lang=zh">中文</a>
+1.  **Task Queue**: The system reads development tasks from a configurable source, such as a directory of Markdown files, and loads them into a queue.
+2.  **Orchestration Loop**: The orchestrator picks up the next pending task from the queue.
+3.  **Isolated Workspace**: For each task, it automatically creates a new Git branch to keep the work isolated.
+4.  **Agent Execution**: It invokes the core OpenHands agent to perform the task.
+5.  **Cost & Limit Management**: All LLM API calls are routed through a **Token/Cost Manager**. This component monitors token consumption. If the predefined budget is exceeded, it pauses the orchestrator until the limit period (e.g., the next day or month) begins.
+6.  **Task Completion**:
+    -   If a task is completed successfully, the changes are committed to the feature branch.
+    -   If a task fails, the orchestrator logs the error, discards the changes, and proceeds to the next task.
 
-</div>
+This architecture allows a development team to load a large number of tasks into the system and have the AI agent work on them continuously and autonomously, maximizing productivity while controlling costs.
 
-<hr>
+## Getting Started (Hypothetical Usage)
 
-🙌 Welcome to OpenHands, a [community](COMMUNITY.md) focused on AI-driven development. We’d love for you to [join us on Slack](https://dub.sh/openhands).
+This feature is currently in the design phase. Once implemented, the workflow would be as follows:
 
-There are a few ways to work with OpenHands:
+1.  **Configure the Orchestrator**:
+    -   Create a `config.autonomous.toml` file.
+    -   Define the task source (e.g., `tasks/`), the API budget (`monthly_token_limit = 20000000`), and Git settings.
 
-### OpenHands Software Agent SDK
-The SDK is a composable Python library that contains all of our agentic tech. It's the engine that powers everything else below.
+2.  **Define Tasks**:
+    -   Add markdown files to the `tasks/` directory. Each file represents a single task for the agent to work on.
 
-Define agents in code, then run them locally, or scale to 1000s of agents in the cloud
+3.  **Run the Orchestrator**:
+    -   Start the autonomous agent daemon from the command line:
+    ```bash
+    python run_orchestrator.py
+    ```
 
-[Check out the docs](https://docs.openhands.dev/sdk) or [view the source](https://github.com/All-Hands-AI/agent-sdk/)
-
-### OpenHands CLI
-The CLI is the easiest way to start using OpenHands. The experience will be familiar to anyone who has worked
-with e.g. Claude Code or Codex. You can power it with Claude, GPT, or any other LLM.
-
-[Check out the docs](https://docs.openhands.dev/openhands/usage/run-openhands/cli-mode) or [view the source](https://github.com/OpenHands/OpenHands-CLI)
-
-### OpenHands Local GUI
-Use the Local GUI for running agents on your laptop. It comes with a REST API and a single-page React application.
-The experience will be familiar to anyone who has used Devin or Jules.
-
-[Check out the docs](https://docs.openhands.dev/openhands/usage/run-openhands/local-setup) or view the source in this repo.
-
-### OpenHands Cloud
-This is a commercial deployment of OpenHands GUI, running on hosted infrastructure.
-
-You can try it with a free $10 credit by [signing in with your GitHub account](https://app.all-hands.dev).
-
-OpenHands Cloud comes with source-available features and integrations:
-- Deeper integrations with GitHub, GitLab, and Bitbucket
-- Integrations with Slack, Jira, and Linear
-- Multi-user support
-- RBAC and permissions
-- Collaboration features (e.g., conversation sharing)
-- Usage reporting
-- Budgeting enforcement
-
-### OpenHands Enterprise
-Large enterprises can work with us to self-host OpenHands Cloud in their own VPC, via Kubernetes.
-OpenHands Enterprise can also work with the CLI and SDK above.
-
-OpenHands Enterprise is source-available--you can see all the source code here in the enterprise/ directory,
-but you'll need to purchase a license if you want to run it for more than one month.
-
-Enterprise contracts also come with extended support and access to our research team.
-
-Learn more at [openhands.dev/enterprise](https://openhands.dev/enterprise)
-
-### Everything Else
-
-Check out our [Product Roadmap](https://github.com/orgs/openhands/projects/1), and feel free to
-[open up an issue](https://github.com/OpenHands/OpenHands/issues) if there's something you'd like to see!
-
-You might also be interested in our [evaluation infrastructure](https://github.com/OpenHands/benchmarks), our [chrome extension](https://github.com/OpenHands/openhands-chrome-extension/), or our [Theory-of-Mind module](https://github.com/OpenHands/ToM-SWE).
-
-All our work is available under the MIT license, except for the `enterprise/` directory in this repository (see the [enterprise license](enterprise/LICENSE) for details).
-The core `openhands` and `agent-server` Docker images are fully MIT-licensed as well.
-
-If you need help with anything, or just want to chat, [come find us on Slack](https://dub.sh/openhands).
+The agent will then begin picking up tasks and working on them in separate branches, pausing and resuming as needed to respect API limits.

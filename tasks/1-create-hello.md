@@ -1,0 +1,1 @@
+Create a new file named `hello.txt` with the content `Hello, World!`.
